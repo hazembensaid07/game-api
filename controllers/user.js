@@ -17,9 +17,9 @@ exports.signup = (req, res) => {
       });
     }
     // creating the user token
-    const requestAdmin = false;
+
     const token = jwt.sign(
-      { name, lastName, email, password, requestAdmin },
+      { name, lastName, email, password },
       process.env.JWT_ACCOUNT_ACTIVATION,
       { expiresIn: "7d" }
     );
@@ -57,7 +57,7 @@ exports.accountActivation = (req, res) => {
           });
         }
         //decoding the token to get the user parameters
-        const { name, lastName, email, password, requestAdmin } =
+        const { name, lastName, email, password } =
           jwt.decode(token);
         //creating a new user object (the password will be hashed in this phase using the functions declared int he user Schema)
         const user = new User({
@@ -65,7 +65,6 @@ exports.accountActivation = (req, res) => {
           lastName,
           email,
           password,
-          requestAdmin,
         });
         // saving the user to the DB
         user.save((err, user) => {
@@ -106,11 +105,10 @@ exports.signin = (req, res) => {
       const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
         expiresIn: "7d",
       });
-      const { email, name, lastName, role } = user;
-
+      
       return res.json({
         token,
-        user: { email, name, lastName, role },
+        user: user
       });
     });
 };
@@ -194,96 +192,7 @@ exports.resetPassword = (req, res) => {
   }
 };
 exports.loadUser = async (req, res) => {
-  const { name, lastName, email, role } = req.user;
-  const user = { name, lastName, email, role };
+ 
+  const user = req.user
   res.status(200).send({ msg: "load user  succ", user: user });
-};
-exports.requestAdmin = async (req, res) => {
-  try {
-    //user send a request to become admin because the management of the admin panel is like bellow: the first user created (the manager of the agency) will have admin role by changing it manually in the database then to promote another user as admin he sends a request and the manager either accept either deny
-    const { email } = req.body;
-    User.findOne({ email }, async (err, user) => {
-      if (err || !user) {
-        return res.status(400).json({
-          error: "User with that email does not exist",
-        });
-      }
-      const result = await User.updateOne(
-        { email: email },
-        { $set: { requestAdmin: true } }
-      );
-      res.status(200).json({
-        msg: "Request added with success",
-      });
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: "internal server error ",
-    });
-  }
-};
-
-exports.assignAdmin = async (req, res) => {
-  try {
-    //id user
-    const { _id } = req.body;
-    User.findOne({ _id }, async (err, user) => {
-      if (err || !user) {
-        return res.status(400).json({
-          error: "User with that email does not exist",
-        });
-      }
-
-      const result = await User.updateOne(
-        { _id: _id },
-        { $set: { requestAdmin: false, role: "admin" } }
-      );
-
-      res.status(200).json({
-        message: "Admin Added",
-      });
-    });
-  } catch (error) {
-    res.status(403).json({
-      error: "internal server error ",
-    });
-  }
-};
-exports.deleteAdmin = async (req, res) => {
-  try {
-    //id user
-    const { _id } = req.body;
-    User.findOne({ _id }, async (err, user) => {
-      if (err || !user) {
-        return res.status(400).json({
-          error: "User with that email does not exist",
-        });
-      }
-
-      const result = await User.updateOne(
-        { _id: _id },
-        { $set: { requestAdmin: false } }
-      );
-      res.status(200).json({
-        message: "Request Deteleted With Success",
-      });
-    });
-  } catch (error) {
-    res.status(403).json({
-      error: "internal server error ",
-    });
-  }
-};
-//get admin requests which is admin protected route
-exports.getRequests = async (req, res) => {
-  try {
-    const result = await User.find({ requestAdmin: true }).sort({ _id: -1 });
-
-    res.send({
-      message: "requests found",
-      result,
-    });
-  } catch (error) {
-    res.status(500).send({ error: "internal server error " });
-  }
 };

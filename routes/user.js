@@ -6,11 +6,7 @@ const {
   signin,
   forgotPassword,
   resetPassword,
-  assignAdmin,
-  requestAdmin,
-  getRequests,
   loadUser,
-  deleteAdmin,
 } = require("../controllers/user");
 const { runValidation } = require("../validators");
 const {
@@ -18,15 +14,9 @@ const {
   userSigninValidator,
   forgotPasswordValidator,
   resetPasswordValidator,
-  userUpdateValidator,
 } = require("../validators/user");
-const {
-  admin,
-  isAuth,
-  adminReq,
-  adminReqHandler,
-} = require("../middleware/signIn");
 
+const {  isAuth } = require("../middleware/signIn");
 router.post("/signup", userSignupValidator, runValidation, signup);
 
 router.post("/account-activation", accountActivation);
@@ -47,17 +37,7 @@ router.put(
   resetPassword
 );
 
-router.post(
-  "/request-role",
-  adminReq,
-  forgotPasswordValidator,
-  runValidation,
-  requestAdmin
-);
-
-router.post("/add-admin", adminReqHandler, assignAdmin);
-router.post("/delete-admin", adminReqHandler, deleteAdmin);
-router.get("/get-request", adminReqHandler, getRequests);
 router.get("/profile", isAuth, loadUser);
+
 
 module.exports = router;

@@ -1,7 +1,7 @@
 //including express to our project
 const express = require("express");
-const bodyParser = require("body-parser");
 const connectDB = require("./config/ConnectDB");
+const bodyParser = require("body-parser");
 //requiring dotenv to access environment varaibles
 require("dotenv").config();
 const cors = require("cors");
@@ -11,21 +11,13 @@ const PORT = process.env.PORT;
 const app = express();
 //connecting to DB
 connectDB();
-
-app.use(bodyParser.urlencoded({ extended: false }));
-
-app.use(bodyParser.json());
+//used to allow communication with api
 app.use(cors());
-
+//used to allow json with api
+app.use(bodyParser.json());
 // router
-
-app.use("/api/", require("./routes/hotel"));
-app.use("/api/", require("./routes/country"));
-app.use("/api/", require("./routes/reservation"));
 app.use("/api/user", require("./routes/user"));
-app.use("/api/org", require("./routes/org"));
-app.use("/api/", require("./routes/booking"));
-app.use(express.static("generatedHTML"));
+app.use("/api/gamesession", require("./routes/gamesession"));
 
 // linkin the server to the port
 app.listen(PORT, async (err) => {

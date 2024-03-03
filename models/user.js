@@ -24,6 +24,10 @@ const userScheama = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
+    email: {
+      type: String,
+      default: "",
+    },
     hashed_password: {
       type: String,
       required: true,
@@ -31,15 +35,15 @@ const userScheama = new mongoose.Schema(
     },
     //used to hash the password
     salt: String,
-    role: {
-      type: String,
-      default: "employee",
-    },
     resetPasswordLink: {
       data: String,
       default: "",
     },
-    requestAdmin: {
+    score: {
+      type: Number,
+      default: 0,
+    },
+    available: {
       type: Boolean,
       default: false,
     },
